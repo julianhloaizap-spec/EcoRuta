@@ -61,7 +61,7 @@ public class Entrega {
             return false;
         }
         for (Lote existente : lotes) {
-            if (existente.getCodigo().equalsIgnoreCase(lote.getCodigo())) {
+            if (existente.getIdLote().equalsIgnoreCase(lote.getIdLote())) {
                 return false;
             }
         }

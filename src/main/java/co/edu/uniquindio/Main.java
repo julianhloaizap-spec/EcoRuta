@@ -76,7 +76,7 @@ public class Main {
         StringBuilder sb = new StringBuilder("--- APORTANTES REGISTRADOS ---\n\n");
         for (Aportante a : lista) {
             sb.append(String.format("Documento: %s  |  Nombre: %s  |  Correo: %s%n",
-                    a.identificacion(), a.nombre(), a.correo()));
+                    a.idAportante(), a.nombreAportante(), a.correoAportante()));
         }
         mostrarTextoLargo(sb.toString(), "Aportantes Registrados");
     }
@@ -94,7 +94,7 @@ public class Main {
         Aportante nuevo = new Aportante(documento, nombre, correo);
         boolean registrado = sistema.registrarAportante(nuevo);
         if (registrado) {
-            mostrarMensaje("Aportante registrado correctamente con documento: " + nuevo.identificacion(),
+            mostrarMensaje("Aportante registrado correctamente con documento: " + nuevo.idAportante(),
                     "Éxito", JOptionPane.INFORMATION_MESSAGE);
         } else {
             mostrarMensaje("RECHAZADO: Datos incompletos o el número de documento ya se encuentra registrado.",
