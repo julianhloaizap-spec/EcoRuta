@@ -37,7 +37,7 @@ public abstract class Lote {
         return !idLote.isBlank() && !descripcion.isBlank() && pesoKg > 0;
     }
 
-    public Etiquetable comoEtiquetable() {
+    public IEtiquetable comoEtiquetable() {
         return null;
     }
 

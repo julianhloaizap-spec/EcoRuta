@@ -1,6 +1,6 @@
 package co.edu.uniquindio;
 
-public class Metal extends Lote implements Etiquetable {
+public class Metal extends Lote implements IEtiquetable {
     private final TipoMetal tipoMetal;
 
     public Metal(String descripcion, int pesoKg, TipoMetal tipoMetal) {
@@ -18,7 +18,7 @@ public class Metal extends Lote implements Etiquetable {
     }
 
     @Override
-    public Etiquetable comoEtiquetable() {
+    public IEtiquetable comoEtiquetable() {
         return this;
     }
 

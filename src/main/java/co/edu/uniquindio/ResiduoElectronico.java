@@ -1,6 +1,6 @@
 package co.edu.uniquindio;
 
-public class ResiduoElectronico extends Lote implements Etiquetable {
+public class ResiduoElectronico extends Lote implements IEtiquetable {
     private static final double TARIFA_KG = 1400.0;
     private static final double TARIFA_POR_EQUIPO = 800.0;
 
@@ -21,7 +21,7 @@ public class ResiduoElectronico extends Lote implements Etiquetable {
     }
 
     @Override
-    public Etiquetable comoEtiquetable() {
+    public IEtiquetable comoEtiquetable() {
         return this;
     }
 

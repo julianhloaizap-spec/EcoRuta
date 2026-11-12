@@ -21,18 +21,18 @@ public class Empresa {
 
     public boolean registrarAportante(Aportante aportante) {
         if (aportante == null
-                || aportante.identificacion() == null || aportante.identificacion().isBlank()
-                || aportante.nombre() == null || aportante.nombre().isBlank()
-                || aportante.correo() == null || aportante.correo().isBlank()) {
+                || aportante.idAportante() == null || aportante.idAportante().isBlank()
+                || aportante.nombreAportante() == null || aportante.nombreAportante().isBlank()
+                || aportante.correoAportante() == null || aportante.correoAportante().isBlank()) {
             return false;
         }
-        if (buscarAportante(aportante.identificacion()) != null) {
+        if (buscarAportante(aportante.idAportante()) != null) {
             return false;
         }
         aportantes.add(new Aportante(
-                aportante.identificacion().trim(),
-                aportante.nombre().trim(),
-                aportante.correo().trim()
+                aportante.idAportante().trim(),
+                aportante.nombreAportante().trim(),
+                aportante.correoAportante().trim()
         ));
         return true;
     }
@@ -43,7 +43,7 @@ public class Empresa {
         }
         String idBuscado = identificacion.trim();
         for (Aportante aportante : aportantes) {
-            if (aportante.identificacion().equalsIgnoreCase(idBuscado)) {
+            if (aportante.idAportante().equalsIgnoreCase(idBuscado)) {
                 return aportante;
             }
         }
@@ -128,7 +128,7 @@ public class Empresa {
         for (Entrega entrega : entregas) {
             if (entrega.getEstado() == EstadoEntrega.ACEPTADA
                     && entrega.getComprobante() != null
-                    && entrega.getAportante().identificacion().equalsIgnoreCase(idBuscado)) {
+                    && entrega.getAportante().idAportante().equalsIgnoreCase(idBuscado)) {
                 acumulado += entrega.getComprobante().valorTotalReconocido();
             }
         }
