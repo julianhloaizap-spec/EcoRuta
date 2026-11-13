@@ -40,9 +40,6 @@ public abstract class Lote {
 
     @Override
     public String toString() {
-        return "\nId Lote: " + idLote +"\n"+
-                "Descripcion: " + descripcionLote + "\n"+
-                "Peso: " + pesoKilogramos + " kg" +"\n"+
-                "Valor: $" + calcularValor();
+        return "   Id Lote: " + idLote + "   Descripcion: " + descripcionLote + "  Peso: " + pesoKilogramos + " kg" +"   Valor: $" + calcularValor();
     }
 }

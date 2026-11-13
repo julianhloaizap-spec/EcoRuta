@@ -24,7 +24,7 @@ public class ResiduoElectronico extends Lote implements IEtiquetable {
     @Override
     public String generarEtiqueta() {
         return "ETIQUETA ELECTRONICO -> Id Lote: " + getIdLote() +
-                " | Equipos completos: " + cantidadEquiposCompletos;
+                "  Equipos completos: " + cantidadEquiposCompletos + "  Peso Kg: " + getPesoKilogramos();
     }
 
     public int getCantidadEquiposCompletos() {
@@ -37,6 +37,6 @@ public class ResiduoElectronico extends Lote implements IEtiquetable {
 
     @Override
     public String toString() {
-        return "Residuo Electronico" + super.toString() + "\n Equipos completos: " + cantidadEquiposCompletos;
+        return "Residuo Electronico: " + super.toString() + "  Equipos completos: " + cantidadEquiposCompletos;
     }
 }
