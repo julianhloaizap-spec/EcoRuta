@@ -213,7 +213,7 @@ class EmpresaTest {
     @BeforeEach
     void ejecutarAntes() {
         LOG.warning("Ejecucion del BeforeEach");
-        empresa = new Empresa("900123456-1", "EcoRuta - Centro de Aprovechamiento");
+        empresa = new Empresa("123456789", "EcoRuta");
         empresa.cargarAportantesIniciales();
 
     }
