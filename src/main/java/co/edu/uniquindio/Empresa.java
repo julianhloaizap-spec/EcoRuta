@@ -4,12 +4,14 @@ import java.util.ArrayList;
 
 public class Empresa {
 
+    private String nitEmpresa;
     private String nombreEmpresa;
     private ArrayList<Aportante> listaAportantes;
     private ArrayList<Entrega> listaEntregas;
     private int contadorEntregas;
 
-    public Empresa(String nombreEmpresa) {
+    public Empresa(String nitEmpresa, String nombreEmpresa) {
+        this.nitEmpresa = nitEmpresa;
         this.nombreEmpresa = nombreEmpresa;
         this.listaAportantes = new ArrayList<Aportante>();
         this.listaEntregas = new ArrayList<Entrega>();
@@ -152,8 +154,20 @@ public class Empresa {
         return totalAcumulado;
     }
 
+    public String getNitEmpresa() {
+        return nitEmpresa;
+    }
+
+    public void setNitEmpresa(String nitEmpresa) {
+        this.nitEmpresa = nitEmpresa;
+    }
+
     public String getNombreEmpresa() {
         return nombreEmpresa;
+    }
+
+    public void setNombreEmpresa(String nombreEmpresa) {
+        this.nombreEmpresa = nombreEmpresa;
     }
 
     public ArrayList<Aportante> getListaAportantes() {

@@ -7,13 +7,14 @@ import java.util.ArrayList;
 public class Main {
 
     public static void main(String[] args) {
-        Empresa empresaEcoRuta = new Empresa("EcoRuta - Centro de Aprovechamiento");
+        Empresa empresaEcoRuta = new Empresa("900123456-1", "EcoRuta - Centro de Aprovechamiento");
         empresaEcoRuta.cargarAportantesIniciales();
 
         int Menu = 0;
 
         while (Menu != 10) {
-            String textoMenu = "=== " + empresaEcoRuta.getNombreEmpresa() + " ===\n\n" +
+            String textoMenu = "=== " + empresaEcoRuta.getNombreEmpresa() + " ===\n" +
+                    "NIT: " + empresaEcoRuta.getNitEmpresa() + "\n\n" +
                     "Seleccione una opcion digitando su numero:\n\n" +
                     "1. Registrar entrega\n" +
                     "2. Agregar lote\n" +
