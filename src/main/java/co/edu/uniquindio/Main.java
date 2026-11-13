@@ -16,10 +16,10 @@ public class Main {
             String textoMenu = "=== " + empresaEcoRuta.getNombreEmpresa() + " ===\n" +
                     "NIT: " + empresaEcoRuta.getNitEmpresa() + "\n\n" +
                     "Seleccione una opcion digitando su numero:\n\n" +
-                    "1. Registrar entrega\n" +
-                    "2. Agregar lote\n" +
-                    "3. Aceptar entrega\n" +
-                    "4. Registrar aportante\n" +
+                    "1. Registrar aportante\n" +
+                    "2. Registrar entrega\n" +
+                    "3. Agregar lote\n" +
+                    "4. Aceptar entrega\n" +
                     "5. Ver aportantes registrados\n" +
                     "6. Consultar etiqueta\n" +
                     "7. Consultar valor a pagar\n" +
@@ -40,16 +40,16 @@ public class Main {
 
             switch (Menu) {
                 case 1:
-                    registrarEntrega(empresaEcoRuta);
+                    registrarAportante(empresaEcoRuta);
                     break;
                 case 2:
-                    agregarLote(empresaEcoRuta);
+                    registrarEntrega(empresaEcoRuta);
                     break;
                 case 3:
-                    aceptarEntrega(empresaEcoRuta);
+                    agregarLote(empresaEcoRuta);
                     break;
                 case 4:
-                    registrarAportante(empresaEcoRuta);
+                    aceptarEntrega(empresaEcoRuta);
                     break;
                 case 5:
                     verAportantesRegistrados(empresaEcoRuta);
@@ -119,7 +119,7 @@ public class Main {
 
     private static void registrarEntrega(Empresa empresaEcoRuta) {
         String idAportante = JOptionPane.showInputDialog(null,
-                "REGISTRAR NUEVA ENTREGA\n\nIngrese el docuemnto del aportante :");
+                "REGISTRAR NUEVA ENTREGA\n\nIngrese el documento del aportante :");
         if (idAportante == null) {
             return;
         }
