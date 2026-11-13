@@ -37,6 +37,6 @@ public class ResiduoElectronico extends Lote implements IEtiquetable {
 
     @Override
     public String toString() {
-        return "[Residuo Electronico] " + super.toString() + " | Equipos completos: " + cantidadEquiposCompletos;
+        return "Residuo Electronico" + super.toString() + "\n Equipos completos: " + cantidadEquiposCompletos;
     }
 }

@@ -19,12 +19,12 @@ public class Main {
                     "1. Registrar aportante\n" +
                     "2. Registrar entrega\n" +
                     "3. Agregar lote\n" +
-                    "4. Aceptar entrega\n" +
-                    "5. Ver aportantes registrados\n" +
+                    "4. Consultar entrega\n"+
+                    "5. Aceptar entrega\n" +
                     "6. Consultar etiqueta\n" +
-                    "7. Consultar valor a pagar\n" +
-                    "8. Consultar entrega\n" +
-                    "9. Consultar comprobante\n" +
+                    "7. Ver aportantes registrados\n" +
+                    "8. Consultar comprobante\n"+
+                    "9. Consultar valor a pagar\n" +
                     "10. Salir\n";
 
             String entradaOpcion = JOptionPane.showInputDialog(null, textoMenu, "Menu Principal EcoRuta", JOptionPane.QUESTION_MESSAGE);
@@ -49,22 +49,22 @@ public class Main {
                     agregarLote(empresaEcoRuta);
                     break;
                 case 4:
-                    aceptarEntrega(empresaEcoRuta);
+                    consultarEntrega(empresaEcoRuta);
                     break;
                 case 5:
-                    verAportantesRegistrados(empresaEcoRuta);
+                    aceptarEntrega(empresaEcoRuta);
                     break;
                 case 6:
                     consultarEtiquetas(empresaEcoRuta);
                     break;
                 case 7:
-                    consultarValorAPagar(empresaEcoRuta);
+                    verAportantesRegistrados(empresaEcoRuta);
                     break;
                 case 8:
-                    consultarEntrega(empresaEcoRuta);
+                    consultarComprobante(empresaEcoRuta);
                     break;
                 case 9:
-                    consultarComprobante(empresaEcoRuta);
+                    consultarValorAPagar(empresaEcoRuta);
                     break;
                 case 10:
                     mostrarMensaje("Gracias por utilizar el sistema EcoRuta");
@@ -152,7 +152,7 @@ public class Main {
             return;
         }
         if (entregaEncontrada.getEstadoEntrega() != EstadoEntrega.ABIERTA) {
-            mostrarMensaje("Operacion rechazada.\nLa entrega " + idEntrega + " ya se encuentra aceptada y cerrada.");
+            mostrarMensaje("La entrega " + idEntrega + " ya se encuentra aceptada y cerrada.");
             return;
         }
 
@@ -198,12 +198,12 @@ public class Main {
                                 "1. Si\n" +
                                 "2. No\n");
                 if (entradaClasificado == null || !esNumeroEnteroNoNegativo(entradaClasificado.trim())) {
-                    mostrarMensaje("Operacion rechazada. Debe digitar 1 o 2.");
+                    mostrarMensaje("Debe digitar 1 o 2.");
                     return;
                 }
                 int opcionClasificado = Integer.parseInt(entradaClasificado.trim());
                 if (opcionClasificado != 1 && opcionClasificado != 2) {
-                    mostrarMensaje("Operacion rechazada. Debe digitar 1 o 2.");
+                    mostrarMensaje("Debe digitar 1 o 2.");
                     return;
                 }
                 boolean estaClasificado = (opcionClasificado == 1);
@@ -226,7 +226,7 @@ public class Main {
                 } else if (opcionMetal == 2) {
                     tipoMetalSeleccionado = TipoMetal.ACERO;
                 } else {
-                    mostrarMensaje("Operacion rechazada. Debe digitar 1 o 2.");
+                    mostrarMensaje("Debe digitar 1 o 2.");
                     return;
                 }
                 nuevoLote = new Metal(descripcionLote.trim(), pesoKilogramos, tipoMetalSeleccionado);
