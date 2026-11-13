@@ -19,9 +19,9 @@ public class Empresa {
     }
 
     public void cargarAportantesIniciales() {
-        registrarAportante(new Aportante("1094001", "Laura Gomez", "laura.gomez@correo.com"));
-        registrarAportante(new Aportante("1094002", "Supermercado El Roble", "contacto@elroble.com"));
-        registrarAportante(new Aportante("1094003", "Colegio San Jose", "ambiental@sanjose.edu.co"));
+        registrarAportante(new Aportante("1094001", "Julian Loaiza", "julian.loaiza@hotmail.com"));
+        registrarAportante(new Aportante("1094002", "Yair Yampuezan", "yair.yampuezan@gmail.com"));
+        registrarAportante(new Aportante("1094003", "Mariana Mendez", "mariana.mendez@uqvirtual.edu.co"));
     }
 
     private String generarIdEntregaAutomatico() {
