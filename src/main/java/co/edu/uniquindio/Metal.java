@@ -27,7 +27,7 @@ public class Metal extends Lote implements IEtiquetable {
 
     @Override
     public String generarEtiqueta() {
-        return "ETIQUETA METAL -> Id Lote: " + getIdLote() + " | Tipo de Metal: " + tipoMetal;
+        return "ETIQUETA METAL -> Id Lote: " + getIdLote() + "/n Tipo de Metal: " + tipoMetal;
     }
 
     public TipoMetal getTipoMetal() {
@@ -40,6 +40,6 @@ public class Metal extends Lote implements IEtiquetable {
 
     @Override
     public String toString() {
-        return "[Metal] " + super.toString() + " | Tipo: " + tipoMetal;
+        return "Metal" + super.toString() + " /nTipo: " + tipoMetal;
     }
 }
