@@ -1,137 +1,166 @@
 package co.edu.uniquindio;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.List;
 
 public class Empresa {
-    private final ArrayList<Aportante> aportantes;
-    private final ArrayList<Entrega> entregas;
 
-    public Empresa() {
-        this.aportantes = new ArrayList<>();
-        this.entregas = new ArrayList<>();
+    private String nombreEmpresa;
+    private ArrayList<Aportante> listaAportantes;
+    private ArrayList<Entrega> listaEntregas;
+    private int contadorEntregas;
+
+    public Empresa(String nombreEmpresa) {
+        this.nombreEmpresa = nombreEmpresa;
+        this.listaAportantes = new ArrayList<Aportante>();
+        this.listaEntregas = new ArrayList<Entrega>();
+        this.contadorEntregas = 1;
     }
 
     public void cargarAportantesIniciales() {
-        registrarAportante(new Aportante("1001", "Hogar Familia Torres", "torres@correo.com"));
-        registrarAportante(new Aportante("2002", "Comercio Supermercado El Sol", "elsol@comercio.com"));
-        registrarAportante(new Aportante("3003", "Institución Educativa San José", "contacto@sanjose.edu.co"));
+        registrarAportante(new Aportante("1094001", "Laura Gomez", "laura.gomez@correo.com"));
+        registrarAportante(new Aportante("1094002", "Supermercado El Roble", "contacto@elroble.com"));
+        registrarAportante(new Aportante("1094003", "Colegio San Jose", "ambiental@sanjose.edu.co"));
     }
 
-    public boolean registrarAportante(Aportante aportante) {
-        if (aportante == null
-                || aportante.idAportante() == null || aportante.idAportante().isBlank()
-                || aportante.nombreAportante() == null || aportante.nombreAportante().isBlank()
-                || aportante.correoAportante() == null || aportante.correoAportante().isBlank()) {
+    private String generarIdEntregaAutomatico() {
+        String idGenerado = "";
+        if (contadorEntregas < 10) {
+            idGenerado = "E0" + contadorEntregas;
+        } else {
+            idGenerado = "E" + contadorEntregas;
+        }
+        contadorEntregas++;
+        return idGenerado;
+    }
+
+    public boolean registrarAportante(Aportante nuevoAportante) {
+        if (nuevoAportante == null) {
             return false;
         }
-        if (buscarAportante(aportante.idAportante()) != null) {
+        if (nuevoAportante.idAportante() == null || nuevoAportante.idAportante().trim().isEmpty()) {
             return false;
         }
-        aportantes.add(new Aportante(
-                aportante.idAportante().trim(),
-                aportante.nombreAportante().trim(),
-                aportante.correoAportante().trim()
-        ));
+        if (buscarAportantePorId(nuevoAportante.idAportante()) != null) {
+            return false;
+        }
+        listaAportantes.add(nuevoAportante);
         return true;
     }
 
-    public Aportante buscarAportante(String identificacion) {
-        if (identificacion == null || identificacion.isBlank()) {
+    public Aportante buscarAportantePorId(String idBuscado) {
+        if (idBuscado == null) {
             return null;
         }
-        String idBuscado = identificacion.trim();
-        for (Aportante aportante : aportantes) {
-            if (aportante.idAportante().equalsIgnoreCase(idBuscado)) {
-                return aportante;
+        for (int indice = 0; indice < listaAportantes.size(); indice++) {
+            Aportante aportanteActual = listaAportantes.get(indice);
+            if (aportanteActual.idAportante().equalsIgnoreCase(idBuscado.trim())) {
+                return aportanteActual;
             }
         }
         return null;
     }
 
-    public ArrayList<Aportante> listarAportantes() {
-        return new ArrayList<>(aportantes);
-    }
-
-    public Entrega registrarEntrega(LocalDate fecha, String identificacionAportante) {
-        if (fecha == null) {
+    public Entrega registrarEntregaAutomatica(String fechaEntrega, String idAportante) {
+        Aportante aportanteEncontrado = buscarAportantePorId(idAportante);
+        if (aportanteEncontrado == null) {
             return null;
         }
-        Aportante aportante = buscarAportante(identificacionAportante);
-        if (aportante == null) {
-            return null;
+        String idGenerado = generarIdEntregaAutomatico();
+        while (buscarEntregaPorId(idGenerado) != null) {
+            idGenerado = generarIdEntregaAutomatico();
         }
-        Entrega nuevaEntrega = new Entrega(fecha, aportante);
-        if (buscarEntrega(nuevaEntrega.getCodigo()) != null) {
-            return null;
-        }
-        entregas.add(nuevaEntrega);
+        Entrega nuevaEntrega = new Entrega(idGenerado, fechaEntrega, aportanteEncontrado);
+        listaEntregas.add(nuevaEntrega);
         return nuevaEntrega;
     }
 
-    public Entrega buscarEntrega(String codigoEntrega) {
-        if (codigoEntrega == null || codigoEntrega.isBlank()) {
+    public boolean registrarEntrega(String idEntrega, String fechaEntrega, String idAportante) {
+        if (idEntrega == null || idEntrega.trim().isEmpty()) {
+            return false;
+        }
+        if (buscarEntregaPorId(idEntrega) != null) {
+            return false;
+        }
+        Aportante aportanteEncontrado = buscarAportantePorId(idAportante);
+        if (aportanteEncontrado == null) {
+            return false;
+        }
+        Entrega nuevaEntrega = new Entrega(idEntrega.trim(), fechaEntrega, aportanteEncontrado);
+        listaEntregas.add(nuevaEntrega);
+        return true;
+    }
+
+    public Entrega buscarEntregaPorId(String idEntregaBuscado) {
+        if (idEntregaBuscado == null) {
             return null;
         }
-        String codigoBuscado = codigoEntrega.trim();
-        for (Entrega entrega : entregas) {
-            if (entrega.getCodigo().equalsIgnoreCase(codigoBuscado)) {
-                return entrega;
+        for (int indice = 0; indice < listaEntregas.size(); indice++) {
+            Entrega entregaActual = listaEntregas.get(indice);
+            if (entregaActual.getIdEntrega().equalsIgnoreCase(idEntregaBuscado.trim())) {
+                return entregaActual;
             }
         }
         return null;
     }
 
-    public ArrayList<Entrega> listarEntregas() {
-        return new ArrayList<>(entregas);
-    }
-
-    public boolean agregarLoteAEntrega(String codigoEntrega, Lote lote) {
-        Entrega entrega = buscarEntrega(codigoEntrega);
-        if (entrega == null) {
+    public boolean agregarLoteAEntrega(String idEntrega, Lote nuevoLote) {
+        Entrega entregaEncontrada = buscarEntregaPorId(idEntrega);
+        if (entregaEncontrada == null) {
             return false;
         }
-        return entrega.agregarLote(lote);
+        return entregaEncontrada.agregarLote(nuevoLote);
     }
 
-    public Comprobante aceptarEntrega(String codigoEntrega) {
-        Entrega entrega = buscarEntrega(codigoEntrega);
-        if (entrega == null) {
+    public boolean aceptarEntrega(String idEntrega) {
+        Entrega entregaEncontrada = buscarEntregaPorId(idEntrega);
+        if (entregaEncontrada == null) {
+            return false;
+        }
+        return entregaEncontrada.aceptarEntrega();
+    }
+
+    public Comprobante consultarComprobantePorEntrega(String idEntrega) {
+        Entrega entregaEncontrada = buscarEntregaPorId(idEntrega);
+        if (entregaEncontrada == null) {
             return null;
         }
-        return entrega.aceptar();
+        return entregaEncontrada.getComprobante();
     }
 
-    public Comprobante consultarComprobante(String codigoEntrega) {
-        Entrega entrega = buscarEntrega(codigoEntrega);
-        if (entrega == null || entrega.getEstado() != EstadoEntrega.ACEPTADA) {
-            return null;
+    public ArrayList<String> consultarEtiquetasPorEntrega(String idEntrega) {
+        Entrega entregaEncontrada = buscarEntregaPorId(idEntrega);
+        if (entregaEncontrada == null) {
+            return new ArrayList<String>();
         }
-        return entrega.getComprobante();
+        return entregaEncontrada.obtenerEtiquetas();
     }
 
-    public List<String> consultarEtiquetas(String codigoEntrega) {
-        Entrega entrega = buscarEntrega(codigoEntrega);
-        if (entrega == null || entrega.getEstado() != EstadoEntrega.ACEPTADA) {
-            return null;
-        }
-        return entrega.obtenerEtiquetas();
-    }
-
-    public double calcularValorAcumuladoAportante(String identificacionAportante) {
-        if (identificacionAportante == null || identificacionAportante.isBlank()) {
+    public double consultarValorAPagarPorAportante(String idAportante) {
+        if (idAportante == null || idAportante.trim().isEmpty()) {
             return 0.0;
         }
-        String idBuscado = identificacionAportante.trim();
-        double acumulado = 0.0;
-        for (Entrega entrega : entregas) {
-            if (entrega.getEstado() == EstadoEntrega.ACEPTADA
-                    && entrega.getComprobante() != null
-                    && entrega.getAportante().idAportante().equalsIgnoreCase(idBuscado)) {
-                acumulado += entrega.getComprobante().valorTotalReconocido();
+        double totalAcumulado = 0.0;
+        for (int indice = 0; indice < listaEntregas.size(); indice++) {
+            Entrega entregaActual = listaEntregas.get(indice);
+            if (entregaActual.getEstadoEntrega() == EstadoEntrega.ACEPTADA && entregaActual.getComprobante() != null) {
+                Comprobante comprobanteActual = entregaActual.getComprobante();
+                if (comprobanteActual.idAportante().equalsIgnoreCase(idAportante.trim())) {
+                    totalAcumulado += comprobanteActual.valorTotalReconocido();
+                }
             }
         }
-        return acumulado;
+        return totalAcumulado;
+    }
+
+    public String getNombreEmpresa() {
+        return nombreEmpresa;
+    }
+
+    public ArrayList<Aportante> getListaAportantes() {
+        return listaAportantes;
+    }
+
+    public ArrayList<Entrega> getListaEntregas() {
+        return listaEntregas;
     }
 }

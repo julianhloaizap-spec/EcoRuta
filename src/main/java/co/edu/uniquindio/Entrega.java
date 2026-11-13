@@ -1,117 +1,162 @@
 package co.edu.uniquindio;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class Entrega {
-    private static int contador = 1;
 
-    private final String codigo;
-    private final LocalDate fecha;
-    private final Aportante aportante;
-    private EstadoEntrega estado;
-    private final ArrayList<Lote> lotes;
+    private String idEntrega;
+    private String fechaEntrega;
+    private Aportante aportante;
+    private ArrayList<Lote> listaLotes;
+    private EstadoEntrega estadoEntrega;
     private Comprobante comprobante;
+    private int contadorLotes;
 
-    public Entrega(LocalDate fecha, Aportante aportante) {
-        this.codigo = generarSiguienteCodigo();
-        this.fecha = fecha;
+    public Entrega(String idEntrega, String fechaEntrega, Aportante aportante) {
+        this.idEntrega = idEntrega;
+        this.fechaEntrega = fechaEntrega;
         this.aportante = aportante;
-        this.estado = EstadoEntrega.ABIERTA;
-        this.lotes = new ArrayList<>();
+        this.listaLotes = new ArrayList<Lote>();
+        this.estadoEntrega = EstadoEntrega.ABIERTA;
         this.comprobante = null;
+        this.contadorLotes = 1;
     }
 
-    private static String generarSiguienteCodigo() {
-        return String.format("E%02d", contador++);
+    private String generarIdLoteAutomatico() {
+        String idGenerado = "";
+        if (contadorLotes < 10) {
+            idGenerado = "L0" + contadorLotes;
+        } else {
+            idGenerado = "L" + contadorLotes;
+        }
+        contadorLotes++;
+        return idGenerado;
     }
 
-    public static void reiniciarContador() {
-        contador = 1;
+    public boolean existeIdLote(String idLoteBuscado) {
+        for (int indice = 0; indice < listaLotes.size(); indice++) {
+            Lote loteActual = listaLotes.get(indice);
+            if (loteActual.getIdLote().equalsIgnoreCase(idLoteBuscado)) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    public String getCodigo() {
-        return codigo;
+    public boolean agregarLote(Lote nuevoLote) {
+        if (estadoEntrega != EstadoEntrega.ABIERTA) {
+            return false;
+        }
+        if (nuevoLote == null) {
+            return false;
+        }
+        if (nuevoLote.getPesoKilogramos() <= 0) {
+            return false;
+        }
+        if (nuevoLote instanceof ResiduoElectronico) {
+            ResiduoElectronico loteElectronico = (ResiduoElectronico) nuevoLote;
+            if (loteElectronico.getCantidadEquiposCompletos() < 0) {
+                return false;
+            }
+        }
+
+        if (nuevoLote.getIdLote() == null || nuevoLote.getIdLote().trim().isEmpty()) {
+            String idAutomatico = generarIdLoteAutomatico();
+            while (existeIdLote(idAutomatico)) {
+                idAutomatico = generarIdLoteAutomatico();
+            }
+            nuevoLote.setIdLote(idAutomatico);
+        } else if (existeIdLote(nuevoLote.getIdLote())) {
+            return false;
+        }
+
+        listaLotes.add(nuevoLote);
+        return true;
     }
 
-    public LocalDate getFecha() {
-        return fecha;
+    public boolean aceptarEntrega() {
+        if (estadoEntrega != EstadoEntrega.ABIERTA) {
+            return false;
+        }
+        if (listaLotes.isEmpty()) {
+            return false;
+        }
+
+        int pesoTotalCalculado = 0;
+        double valorTotalCalculado = 0.0;
+
+        for (int indice = 0; indice < listaLotes.size(); indice++) {
+            Lote loteActual = listaLotes.get(indice);
+            pesoTotalCalculado += loteActual.getPesoKilogramos();
+            valorTotalCalculado += loteActual.calcularValor();
+        }
+
+        estadoEntrega = EstadoEntrega.ACEPTADA;
+        comprobante = new Comprobante(
+                idEntrega,
+                aportante.idAportante(),
+                pesoTotalCalculado,
+                valorTotalCalculado
+        );
+        return true;
+    }
+
+    public ArrayList<String> obtenerEtiquetas() {
+        ArrayList<String> listaEtiquetas = new ArrayList<String>();
+        for (int indice = 0; indice < listaLotes.size(); indice++) {
+            Lote loteActual = listaLotes.get(indice);
+            if (loteActual instanceof IEtiquetable) {
+                IEtiquetable loteEtiquetable = (IEtiquetable) loteActual;
+                listaEtiquetas.add(loteEtiquetable.generarEtiqueta());
+            }
+        }
+        return listaEtiquetas;
+    }
+
+    public String getIdEntrega() {
+        return idEntrega;
+    }
+
+    public String getFechaEntrega() {
+        return fechaEntrega;
     }
 
     public Aportante getAportante() {
         return aportante;
     }
 
-    public EstadoEntrega getEstado() {
-        return estado;
+    public ArrayList<Lote> getListaLotes() {
+        return listaLotes;
     }
 
-    public List<Lote> getLotes() {
-        return Collections.unmodifiableList(lotes);
+    public EstadoEntrega getEstadoEntrega() {
+        return estadoEntrega;
     }
 
     public Comprobante getComprobante() {
         return comprobante;
     }
 
-    public boolean agregarLote(Lote lote) {
-        if (estado != EstadoEntrega.ABIERTA || lote == null || !lote.esValido()) {
-            return false;
-        }
-        for (Lote existente : lotes) {
-            if (existente.getIdLote().equalsIgnoreCase(lote.getIdLote())) {
-                return false;
-            }
-        }
-        lotes.add(lote);
-        return true;
-    }
-
-    public int calcularPesoTotal() {
-        int pesoTotal = 0;
-        for (Lote lote : lotes) {
-            pesoTotal += lote.getPesoKg();
-        }
-        return pesoTotal;
-    }
-
-    public double calcularValorTotal() {
-        double valorTotal = 0.0;
-        for (Lote lote : lotes) {
-            valorTotal += lote.calcularValor();
-        }
-        return valorTotal;
-    }
-
-    public Comprobante aceptar() {
-        if (estado != EstadoEntrega.ABIERTA || lotes.isEmpty()) {
-            return null;
-        }
-        int pesoTotal = calcularPesoTotal();
-        double valorTotal = calcularValorTotal();
-
-        this.estado = EstadoEntrega.ACEPTADA;
-        this.comprobante = new Comprobante(codigo, aportante.idAportante(), pesoTotal, valorTotal);
-        return this.comprobante;
-    }
-
-    public List<String> obtenerEtiquetas() {
-        ArrayList<String> etiquetas = new ArrayList<>();
-        for (Lote lote : lotes) {
-            IEtiquetable etiquetable = lote.comoEtiquetable();
-            if (etiquetable != null) {
-                etiquetas.add(etiquetable.generarEtiqueta());
-            }
-        }
-        return Collections.unmodifiableList(etiquetas);
-    }
-
     @Override
     public String toString() {
-        return String.format("Entrega[Código=%s, Fecha=%s, Aportante=%s (Doc: %s), Estado=%s, Lotes=%d, Comprobante=%s]",
-                codigo, fecha, aportante.nombreAportante(), aportante.idAportante(),
-                estado, lotes.size(), (comprobante != null ? "Sí" : "No"));
+        String detalle = "Entrega Id: " + idEntrega +
+                "\nFecha: " + fechaEntrega +
+                "\nAportante: " + aportante.nombreAportante() + " (Id: " + aportante.idAportante() + ")" +
+                "\nEstado: " + estadoEntrega +
+                "\nCantidad de lotes: " + listaLotes.size();
+
+        if (!listaLotes.isEmpty()) {
+            detalle += "\n\nLotes registrados:";
+            for (int indice = 0; indice < listaLotes.size(); indice++) {
+                detalle += "\n  " + (indice + 1) + ". " + listaLotes.get(indice).toString();
+            }
+        }
+
+        if (comprobante != null) {
+            detalle += "\n\nComprobante generado:" +
+                    "\n  Peso total: " + comprobante.pesoTotal() + " kg" +
+                    "\n  Valor total reconocido: $" + comprobante.valorTotalReconocido();
+        }
+        return detalle;
     }
 }

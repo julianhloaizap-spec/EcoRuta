@@ -1,43 +1,45 @@
 package co.edu.uniquindio;
 
 public class Metal extends Lote implements IEtiquetable {
-    private final TipoMetal tipoMetal;
 
-    public Metal(String descripcion, int pesoKg, TipoMetal tipoMetal) {
-        super(descripcion, pesoKg);
+    private TipoMetal tipoMetal;
+
+    public Metal(String idLote, String descripcionLote, int pesoKilogramos, TipoMetal tipoMetal) {
+        super(idLote, descripcionLote, pesoKilogramos);
         this.tipoMetal = tipoMetal;
+    }
+
+    public Metal(String descripcionLote, int pesoKilogramos, TipoMetal tipoMetal) {
+        super(null, descripcionLote, pesoKilogramos);
+        this.tipoMetal = tipoMetal;
+    }
+
+    @Override
+    public double calcularValor() {
+        double tarifaPorKilogramo = 0.0;
+        if (tipoMetal == TipoMetal.ALUMINIO) {
+            tarifaPorKilogramo = 2200.0;
+        } else if (tipoMetal == TipoMetal.ACERO) {
+            tarifaPorKilogramo = 900.0;
+        }
+        return getPesoKilogramos() * tarifaPorKilogramo;
+    }
+
+    @Override
+    public String generarEtiqueta() {
+        return "ETIQUETA METAL -> Id Lote: " + getIdLote() + " | Tipo de Metal: " + tipoMetal;
     }
 
     public TipoMetal getTipoMetal() {
         return tipoMetal;
     }
 
-    @Override
-    public boolean esValido() {
-        return super.esValido() && tipoMetal != null;
-    }
-
-    @Override
-    public IEtiquetable comoEtiquetable() {
-        return this;
-    }
-
-    @Override
-    public double calcularValor() {
-        if (tipoMetal == null) {
-            return 0.0;
-        }
-        return getPesoKg() * tipoMetal.getTarifaPorKg();
-    }
-
-    @Override
-    public String generarEtiqueta() {
-        return "ETIQUETA METAL | Código Lote: " + getIdLote()
-                + " | Tipo de Metal: " + (tipoMetal != null ? tipoMetal.name() : "N/A");
+    public void setTipoMetal(TipoMetal tipoMetal) {
+        this.tipoMetal = tipoMetal;
     }
 
     @Override
     public String toString() {
-        return super.toString() + " | Metal: " + (tipoMetal != null ? tipoMetal.name() : "N/A");
+        return "[Metal] " + super.toString() + " | Tipo: " + tipoMetal;
     }
 }

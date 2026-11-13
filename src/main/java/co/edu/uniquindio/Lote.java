@@ -1,51 +1,48 @@
 package co.edu.uniquindio;
 
 public abstract class Lote {
-    private static int contador = 1;
 
-    private final String idLote;
-    private final String descripcion;
-    private final int pesoKg;
+    private String idLote;
+    private String descripcionLote;
+    private int pesoKilogramos;
 
-    protected Lote(String descripcion, int pesoKg) {
-        this.idLote = generarSiguienteCodigo();
-        this.descripcion = (descripcion != null) ? descripcion.trim() : "";
-        this.pesoKg = pesoKg;
+    public Lote(String idLote, String descripcionLote, int pesoKilogramos) {
+        this.idLote = idLote;
+        this.descripcionLote = descripcionLote;
+        this.pesoKilogramos = pesoKilogramos;
     }
 
-    private static String generarSiguienteCodigo() {
-        return String.format("L%02d", contador++);
-    }
-
-    public static void reiniciarContador() {
-        contador = 1;
-    }
+    public abstract double calcularValor();
 
     public String getIdLote() {
         return idLote;
     }
 
-    public String getDescripcion() {
-        return descripcion;
+    public void setIdLote(String idLote) {
+        this.idLote = idLote;
     }
 
-    public int getPesoKg() {
-        return pesoKg;
+    public String getDescripcionLote() {
+        return descripcionLote;
     }
 
-    public boolean esValido() {
-        return !idLote.isBlank() && !descripcion.isBlank() && pesoKg > 0;
+    public void setDescripcionLote(String descripcionLote) {
+        this.descripcionLote = descripcionLote;
     }
 
-    public IEtiquetable comoEtiquetable() {
-        return null;
+    public int getPesoKilogramos() {
+        return pesoKilogramos;
     }
 
-    public abstract double calcularValor();
+    public void setPesoKilogramos(int pesoKilogramos) {
+        this.pesoKilogramos = pesoKilogramos;
+    }
 
     @Override
     public String toString() {
-        return String.format("[%s] %s (%d kg) -> Valor: $%,.0f",
-                idLote, descripcion, pesoKg, calcularValor());
+        return "Id Lote: " + idLote +
+                " | Descripcion: " + descripcionLote +
+                " | Peso: " + pesoKilogramos + " kg" +
+                " | Valor: $" + calcularValor();
     }
 }

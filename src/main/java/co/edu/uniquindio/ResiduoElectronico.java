@@ -1,43 +1,42 @@
 package co.edu.uniquindio;
 
 public class ResiduoElectronico extends Lote implements IEtiquetable {
-    private static final double TARIFA_KG = 1400.0;
-    private static final double TARIFA_POR_EQUIPO = 800.0;
 
-    private final int cantidadEquipos;
+    private int cantidadEquiposCompletos;
 
-    public ResiduoElectronico(String descripcion, int pesoKg, int cantidadEquipos) {
-        super(descripcion, pesoKg);
-        this.cantidadEquipos = cantidadEquipos;
+    public ResiduoElectronico(String idLote, String descripcionLote, int pesoKilogramos, int cantidadEquiposCompletos) {
+        super(idLote, descripcionLote, pesoKilogramos);
+        this.cantidadEquiposCompletos = cantidadEquiposCompletos;
     }
 
-    public int getCantidadEquipos() {
-        return cantidadEquipos;
-    }
-
-    @Override
-    public boolean esValido() {
-        return super.esValido() && cantidadEquipos >= 0;
-    }
-
-    @Override
-    public IEtiquetable comoEtiquetable() {
-        return this;
+    public ResiduoElectronico(String descripcionLote, int pesoKilogramos, int cantidadEquiposCompletos) {
+        super(null, descripcionLote, pesoKilogramos);
+        this.cantidadEquiposCompletos = cantidadEquiposCompletos;
     }
 
     @Override
     public double calcularValor() {
-        return (getPesoKg() * TARIFA_KG) + (cantidadEquipos * TARIFA_POR_EQUIPO);
+        double valorPorPeso = getPesoKilogramos() * 1400.0;
+        double valorPorEquipos = cantidadEquiposCompletos * 800.0;
+        return valorPorPeso + valorPorEquipos;
     }
 
     @Override
     public String generarEtiqueta() {
-        return "ETIQUETA ELECTRÓNICO | Código Lote: " + getIdLote()
-                + " | Equipos completos: " + cantidadEquipos;
+        return "ETIQUETA ELECTRONICO -> Id Lote: " + getIdLote() +
+                " | Equipos completos: " + cantidadEquiposCompletos;
+    }
+
+    public int getCantidadEquiposCompletos() {
+        return cantidadEquiposCompletos;
+    }
+
+    public void setCantidadEquiposCompletos(int cantidadEquiposCompletos) {
+        this.cantidadEquiposCompletos = cantidadEquiposCompletos;
     }
 
     @Override
     public String toString() {
-        return super.toString() + " | Electrónicos (Equipos completos: " + cantidadEquipos + ")";
+        return "[Residuo Electronico] " + super.toString() + " | Equipos completos: " + cantidadEquiposCompletos;
     }
 }

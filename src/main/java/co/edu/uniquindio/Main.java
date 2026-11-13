@@ -1,324 +1,432 @@
 package co.edu.uniquindio;
 
-import java.awt.Dimension;
-import java.awt.Font;
-import java.time.LocalDate;
-import java.util.List;
 import javax.swing.JOptionPane;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
+import java.time.LocalDate;
+import java.util.ArrayList;
 
 public class Main {
-    private static final Empresa sistema = new Empresa();
 
     public static void main(String[] args) {
-        sistema.cargarAportantesIniciales();
-        int opcion;
+        Empresa empresaEcoRuta = new Empresa("EcoRuta - Centro de Aprovechamiento");
+        empresaEcoRuta.cargarAportantesIniciales();
 
-        do {
-            opcion = mostrarMenuPrincipal();
-            switch (opcion) {
-                case 1 -> listarAportantes();
-                case 2 -> registrarNuevoAportante();
-                case 3 -> crearEntrega();
-                case 4 -> agregarLoteAEntrega();
-                case 5 -> aceptarEntrega();
-                case 6 -> consultarComprobante();
-                case 7 -> consultarEtiquetas();
-                case 8 -> consultarAcumuladoAportante();
-                case 9 -> listarEntregas();
-                case 0 -> mostrarMensaje("Salir del sistema",
-                        "Empresa", JOptionPane.INFORMATION_MESSAGE);
-                default -> mostrarMensaje("Opción no válida. Seleccione un número entre 0 y 9.",
-                        "Advertencia", JOptionPane.WARNING_MESSAGE);
-            }
-        } while (opcion != 0);
-    }
+        int Menu = 0;
 
-    private static int mostrarMenuPrincipal() {
-        String menu = """
-                ================ MENÚ PRINCIPAL - Eco Ruta ================
-                1. Listar aportantes registrados
-                2. Registrar nuevo aportante
-                3. Crear entrega
-                4. Agregar lote a una entrega abierta
-                5. Aceptar entrega y generar comprobante
-                6. Consultar comprobante por código de entrega
-                7. Consultar etiquetas por código de entrega
-                8. Consultar valor acumulado reconocido por aportante
-                9. Listar todas las entregas
-                0. Salir
-                ==========================================================
-                Seleccione una opción:
-                """;
+        while (Menu != 10) {
+            String textoMenu = "=== " + empresaEcoRuta.getNombreEmpresa() + " ===\n\n" +
+                    "Seleccione una opcion digitando su numero:\n\n" +
+                    "1. Registrar entrega\n" +
+                    "2. Agregar lote\n" +
+                    "3. Aceptar entrega\n" +
+                    "4. Registrar aportante\n" +
+                    "5. Ver aportantes registrados\n" +
+                    "6. Consultar etiqueta\n" +
+                    "7. Consultar valor a pagar\n" +
+                    "8. Consultar entrega\n" +
+                    "9. Consultar comprobante\n" +
+                    "10. Salir\n";
 
-        while (true) {
-            String entrada = JOptionPane.showInputDialog(null, menu,
-                    "Empresa · Recepción y Valoración", JOptionPane.QUESTION_MESSAGE);
-            if (entrada == null) {
-                return 0;
-            }
-            entrada = entrada.trim();
-            if (entrada.matches("\\d+")) {
-                return Integer.parseInt(entrada);
-            }
-            mostrarMensaje("Debe ingresar un número entero válido.",
-                    "Entrada inválida", JOptionPane.WARNING_MESSAGE);
-        }
-    }
+            String entradaOpcion = JOptionPane.showInputDialog(null, textoMenu, "Menu Principal EcoRuta", JOptionPane.QUESTION_MESSAGE);
 
-    private static void listarAportantes() {
-        List<Aportante> lista = sistema.listarAportantes();
-        if (lista.isEmpty()) {
-            mostrarMensaje("No hay aportantes registrados.", "Aportantes", JOptionPane.INFORMATION_MESSAGE);
-            return;
-        }
-        StringBuilder sb = new StringBuilder("--- APORTANTES REGISTRADOS ---\n\n");
-        for (Aportante a : lista) {
-            sb.append(String.format("Documento: %s  |  Nombre: %s  |  Correo: %s%n",
-                    a.idAportante(), a.nombreAportante(), a.correoAportante()));
-        }
-        mostrarTextoLargo(sb.toString(), "Aportantes Registrados");
-    }
-
-    private static void registrarNuevoAportante() {
-        String documento = leerTexto("Ingrese el número de documento del aportante:", "Registrar Aportante");
-        if (documento == null) return;
-
-        String nombre = leerTexto("Ingrese el nombre del aportante:", "Registrar Aportante");
-        if (nombre == null) return;
-
-        String correo = leerTexto("Ingrese el correo electrónico del aportante:", "Registrar Aportante");
-        if (correo == null) return;
-
-        Aportante nuevo = new Aportante(documento, nombre, correo);
-        boolean registrado = sistema.registrarAportante(nuevo);
-        if (registrado) {
-            mostrarMensaje("Aportante registrado correctamente con documento: " + nuevo.idAportante(),
-                    "Éxito", JOptionPane.INFORMATION_MESSAGE);
-        } else {
-            mostrarMensaje("RECHAZADO: Datos incompletos o el número de documento ya se encuentra registrado.",
-                    "Error de Validación", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    private static void crearEntrega() {
-        String documento = leerTexto("Ingrese el número de documento del aportante registrado (ej. 1001):", "Crear Entrega");
-        if (documento == null) return;
-
-        Entrega entrega = sistema.registrarEntrega(LocalDate.now(), documento);
-        if (entrega != null) {
-            mostrarMensaje("Entrega creada exitosamente en estado ABIERTA.\nCódigo generado: "
-                            + entrega.getCodigo() + "\n" + entrega,
-                    "Entrega Registrada", JOptionPane.INFORMATION_MESSAGE);
-        } else {
-            mostrarMensaje("RECHAZADO: El aportante no existe o el documento es inválido.",
-                    "Error de Validación", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    private static void agregarLoteAEntrega() {
-        String codigoEntrega = leerTexto("Ingrese el código de la entrega abierta (ej. E01):", "Agregar Lote");
-        if (codigoEntrega == null) return;
-
-        String descripcion = leerTexto("Ingrese la descripción del material:", "Agregar Lote");
-        if (descripcion == null) return;
-
-        Integer pesoKg = leerEntero("Ingrese el peso en kilogramos (entero positivo > 0):", "Agregar Lote");
-        if (pesoKg == null) return;
-
-        String menuMaterial = """
-                Seleccione el tipo de material del lote:
-                1. Papel y cartón
-                2. Metales (ALUMINIO, ACERO)
-                3. Residuos electronicos
-                """;
-        Integer tipo = leerEntero(menuMaterial, "Tipo de Material");
-        if (tipo == null) return;
-
-        Lote lote = switch (tipo) {
-            case 1 -> {
-                String menuClasificado = """
-                        ¿El material fue clasificado antes de entregarse?
-                        Ingrese 1 para Sí o 2 para No:
-                        """;
-                Boolean clasificado = leerConfirmacionNumerica(menuClasificado, "Papel y Carton");
-                if (clasificado == null) yield null;
-                yield new PapelCarton(descripcion, pesoKg, clasificado);
-            }
-            case 2 -> {
-                String menuMetal = """
-                        Seleccione el tipo de metal:
-                        1. ALUMINIO ($2.200/kg)
-                        2. ACERO ($900/kg)
-                        """;
-                Integer opcionMetal = leerEntero(menuMetal, "Metales");
-                if (opcionMetal == null) yield null;
-                TipoMetal tipoMetal = switch (opcionMetal) {
-                    case 1 -> TipoMetal.ALUMINIO;
-                    case 2 -> TipoMetal.ACERO;
-                    default -> null;
-                };
-                if (tipoMetal == null) {
-                    mostrarMensaje("Opción de metal no válida. Debe ingresar 1 o 2.",
-                            "Dato inválido", JOptionPane.WARNING_MESSAGE);
-                    yield null;
-                }
-                yield new Metal(descripcion, pesoKg, tipoMetal);
-            }
-            case 3 -> {
-                Integer equipos = leerEntero("Ingrese la cantidad de equipos completos (>= 0):", "Residuos Electrónicos");
-                if (equipos == null) yield null;
-                yield new ResiduoElectronico(descripcion, pesoKg, equipos);
-            }
-            default -> {
-                mostrarMensaje("Tipo de material no válido. Debe seleccionar 1, 2 o 3.",
-                        "Dato inválido", JOptionPane.WARNING_MESSAGE);
-                yield null;
-            }
-        };
-
-        if (lote == null) {
-            return;
-        }
-
-        boolean agregado = sistema.agregarLoteAEntrega(codigoEntrega, lote);
-        if (agregado) {
-            mostrarMensaje("Lote agregado correctamente (Codigo asignado: " + lote.getIdLote() + "):\n" + lote,
-                    "Lote Agregado", JOptionPane.INFORMATION_MESSAGE);
-        } else {
-            mostrarMensaje("RECHAZADO: La entrega no existe, ya está ACEPTADA o los datos del lote son inválidos.",
-                    "Error de Validación", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    private static void aceptarEntrega() {
-        String codigoEntrega = leerTexto("Ingrese el código de la entrega a aceptar (ej. E01):", "Aceptar Entrega");
-        if (codigoEntrega == null) return;
-
-        Comprobante comprobante = sistema.aceptarEntrega(codigoEntrega);
-        if (comprobante != null) {
-            mostrarMensaje("Entrega aceptada exitosamente.\n\nComprobante generado:\n" + comprobante,
-                    "Comprobante de Entrega", JOptionPane.INFORMATION_MESSAGE);
-        } else {
-            mostrarMensaje("RECHAZADO: La entrega no existe, está vacía (sin lotes) o ya fue aceptada.",
-                    "No se pudo aceptar", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    private static void consultarComprobante() {
-        String codigoEntrega = leerTexto("Ingrese el código de la entrega (ej. E01):", "Consultar Comprobante");
-        if (codigoEntrega == null) return;
-
-        Comprobante comprobante = sistema.consultarComprobante(codigoEntrega);
-        if (comprobante != null) {
-            mostrarMensaje(comprobante.toString(), "Comprobante Encontrado", JOptionPane.INFORMATION_MESSAGE);
-        } else {
-            mostrarMensaje("SIN RESULTADOS: La entrega no existe o aun no ha sido aceptada.",
-                    "Consulta de Comprobante", JOptionPane.WARNING_MESSAGE);
-        }
-    }
-
-    private static void consultarEtiquetas() {
-        String codigoEntrega = leerTexto("Ingrese el código de la entrega aceptada (ej. E01):", "Consultar Etiquetas");
-        if (codigoEntrega == null) return;
-
-        List<String> etiquetas = sistema.consultarEtiquetas(codigoEntrega);
-        if (etiquetas == null) {
-            mostrarMensaje("SIN RESULTADOS: La entrega no existe o aún no ha sido aceptada.",
-                    "Consulta de Etiquetas", JOptionPane.WARNING_MESSAGE);
-        } else if (etiquetas.isEmpty()) {
-            mostrarMensaje("La entrega no contiene lotes que requieran etiqueta (solo papel/cartón).",
-                    "Consulta de Etiquetas", JOptionPane.INFORMATION_MESSAGE);
-        } else {
-            StringBuilder sb = new StringBuilder("Etiquetas generadas (" + etiquetas.size() + "):\n\n");
-            for (String e : etiquetas) {
-                sb.append("• ").append(e).append("\n");
-            }
-            mostrarMensaje(sb.toString(), "Etiquetas de Control Interno", JOptionPane.INFORMATION_MESSAGE);
-        }
-    }
-
-    private static void consultarAcumuladoAportante() {
-        String documento = leerTexto("Ingrese el número de documento del aportante (ej. 1001):", "Valor Acumulado");
-        if (documento == null) return;
-
-        double total = sistema.calcularValorAcumuladoAportante(documento);
-        String msg = String.format("Valor acumulado reconocido para el documento '%s': $%,.0f", documento.trim(), total);
-        mostrarMensaje(msg, "Consulta Acumulado por Aportante", JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    private static void listarEntregas() {
-        List<Entrega> entregas = sistema.listarEntregas();
-        if (entregas.isEmpty()) {
-            mostrarMensaje("No hay entregas registradas en el sistema.",
-                    "Listado de Entregas", JOptionPane.INFORMATION_MESSAGE);
-            return;
-        }
-        StringBuilder sb = new StringBuilder("--- LISTADO DE ENTREGAS REGISTRADAS ---\n\n");
-        for (Entrega e : entregas) {
-            sb.append(e).append("\n");
-            if (e.getLotes().isEmpty()) {
-                sb.append("   (Sin lotes registrados)\n");
+            if (entradaOpcion == null) {
+                Menu = 10;
+            } else if (!esNumeroEnteroNoNegativo(entradaOpcion.trim())) {
+                mostrarMensaje("Error: Debe ingresar un numero valido del 1 al 10.");
+                Menu = 0;
             } else {
-                for (Lote l : e.getLotes()) {
-                    sb.append("   - ").append(l).append("\n");
-                }
+                Menu = Integer.parseInt(entradaOpcion.trim());
             }
-            sb.append("\n");
-        }
-        mostrarTextoLargo(sb.toString(), "Entregas Registradas");
-    }
 
-    private static String leerTexto(String mensaje, String titulo) {
-        String valor = JOptionPane.showInputDialog(null, mensaje, titulo, JOptionPane.QUESTION_MESSAGE);
-        return (valor != null) ? valor.trim() : null;
-    }
-
-    private static Integer leerEntero(String mensaje, String titulo) {
-        while (true) {
-            String entrada = JOptionPane.showInputDialog(null, mensaje, titulo, JOptionPane.QUESTION_MESSAGE);
-            if (entrada == null) {
-                return null;
-            }
-            entrada = entrada.trim();
-            if (entrada.matches("-?\\d+")) {
-                return Integer.parseInt(entrada);
-            }
-            mostrarMensaje("Debe ingresar un número entero válido.",
-                    "Dato inválido", JOptionPane.WARNING_MESSAGE);
-        }
-    }
-
-    private static Boolean leerConfirmacionNumerica(String mensaje, String titulo) {
-        while (true) {
-            Integer opcion = leerEntero(mensaje, titulo);
-            if (opcion == null) {
-                return null;
-            }
-            switch (opcion) {
-                case 1 -> {
-                    return true;
-                }
-                case 2 -> {
-                    return false;
-                }
-                default -> mostrarMensaje("Opción no válida. Ingrese 1 para Sí o 2 para No.",
-                        "Dato inválido", JOptionPane.WARNING_MESSAGE);
+            switch (Menu) {
+                case 1:
+                    registrarEntrega(empresaEcoRuta);
+                    break;
+                case 2:
+                    agregarLote(empresaEcoRuta);
+                    break;
+                case 3:
+                    aceptarEntrega(empresaEcoRuta);
+                    break;
+                case 4:
+                    registrarAportante(empresaEcoRuta);
+                    break;
+                case 5:
+                    verAportantesRegistrados(empresaEcoRuta);
+                    break;
+                case 6:
+                    consultarEtiquetas(empresaEcoRuta);
+                    break;
+                case 7:
+                    consultarValorAPagar(empresaEcoRuta);
+                    break;
+                case 8:
+                    consultarEntrega(empresaEcoRuta);
+                    break;
+                case 9:
+                    consultarComprobante(empresaEcoRuta);
+                    break;
+                case 10:
+                    mostrarMensaje("Gracias por utilizar el sistema EcoRuta.\nHasta pronto.");
+                    break;
+                default:
+                    if (Menu != 0) {
+                        mostrarMensaje("Opcion no reconocida.\nPor favor digite un numero entre 1 y 10.");
+                    }
+                    break;
             }
         }
     }
 
-    private static void mostrarMensaje(String mensaje, String titulo, int tipoMensaje) {
-        JOptionPane.showMessageDialog(null, mensaje, titulo, tipoMensaje);
+    private static void registrarAportante(Empresa empresaEcoRuta) {
+        String idAportante = JOptionPane.showInputDialog(null,
+                "REGISTRAR APORTANTE\n\nIngrese el id del aportante (numero de documento):");
+        if (idAportante == null || idAportante.trim().isEmpty()) {
+            mostrarMensaje("Operacion cancelada o id invalido.");
+            return;
+        }
+
+        String nombreAportante = JOptionPane.showInputDialog(null,
+                "REGISTRAR APORTANTE\n\nIngrese el nombre completo o razon social:");
+        if (nombreAportante == null || nombreAportante.trim().isEmpty()) {
+            mostrarMensaje("Operacion cancelada o nombre invalido.");
+            return;
+        }
+
+        String correoAportante = JOptionPane.showInputDialog(null,
+                "REGISTRAR APORTANTE\n\nIngrese el correo electronico:");
+        if (correoAportante == null || correoAportante.trim().isEmpty()) {
+            mostrarMensaje("Operacion cancelada o correo invalido.");
+            return;
+        }
+
+        Aportante nuevoAportante = new Aportante(
+                idAportante.trim(),
+                nombreAportante.trim(),
+                correoAportante.trim()
+        );
+
+        boolean aportanteRegistrado = empresaEcoRuta.registrarAportante(nuevoAportante);
+        if (aportanteRegistrado) {
+            mostrarMensaje("Aportante registrado exitosamente.\n\n" +
+                    "Id: " + nuevoAportante.idAportante() + "\n" +
+                    "Nombre: " + nuevoAportante.nombreAportante() + "\n" +
+                    "Correo: " + nuevoAportante.correoAportante());
+        } else {
+            mostrarMensaje("Operacion rechazada.\n\n" +
+                    "Ya existe un aportante registrado con el id: " + idAportante.trim());
+        }
     }
 
-    private static void mostrarTextoLargo(String contenido, String titulo) {
-        JTextArea textArea = new JTextArea(contenido);
-        textArea.setEditable(false);
-        textArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
-        JScrollPane scrollPane = new JScrollPane(textArea);
-        scrollPane.setPreferredSize(new Dimension(720, 420));
-        JOptionPane.showMessageDialog(null, scrollPane, titulo, JOptionPane.INFORMATION_MESSAGE);
+    private static void registrarEntrega(Empresa empresaEcoRuta) {
+        String idAportante = JOptionPane.showInputDialog(null,
+                "REGISTRAR NUEVA ENTREGA\n\nIngrese el id del aportante (numero de documento):");
+        if (idAportante == null) {
+            return;
+        }
+
+        String fechaActual = LocalDate.now().toString();
+        Entrega entregaCreada = empresaEcoRuta.registrarEntregaAutomatica(fechaActual, idAportante);
+
+        if (entregaCreada != null) {
+            mostrarMensaje("Entrega registrada exitosamente.\n\n" +
+                    "Id Entrega generado: " + entregaCreada.getIdEntrega() + "\n" +
+                    "Fecha: " + entregaCreada.getFechaEntrega() + "\n" +
+                    "Id Aportante: " + entregaCreada.getAportante().idAportante() + "\n" +
+                    "Nombre Aportante: " + entregaCreada.getAportante().nombreAportante() + "\n" +
+                    "Estado inicial: " + entregaCreada.getEstadoEntrega());
+        } else {
+            mostrarMensaje("Operacion rechazada.\n\n" +
+                    "El id ingresado no corresponde a un aportante registrado.");
+        }
+    }
+
+    private static void agregarLote(Empresa empresaEcoRuta) {
+        String idEntrega = JOptionPane.showInputDialog(null,
+                "AGREGAR LOTE\n\nIngrese el id de la entrega abierta:");
+        if (idEntrega == null) {
+            return;
+        }
+
+        Entrega entregaEncontrada = empresaEcoRuta.buscarEntregaPorId(idEntrega);
+        if (entregaEncontrada == null) {
+            mostrarMensaje("Operacion rechazada.\nNo existe ninguna entrega con el id: " + idEntrega);
+            return;
+        }
+        if (entregaEncontrada.getEstadoEntrega() != EstadoEntrega.ABIERTA) {
+            mostrarMensaje("Operacion rechazada.\nLa entrega " + idEntrega + " ya se encuentra ACEPTADA y cerrada.");
+            return;
+        }
+
+        String menuTipoLote = "SELECCIONE EL TIPO DE LOTE (Digite el numero)\n\n" +
+                "1. Papel y Carton\n" +
+                "2. Metal\n" +
+                "3. Residuo Electronico\n";
+
+        String entradaTipo = JOptionPane.showInputDialog(null, menuTipoLote);
+        if (entradaTipo == null || !esNumeroEnteroNoNegativo(entradaTipo.trim())) {
+            mostrarMensaje("Operacion cancelada o numero de tipo de lote invalido.");
+            return;
+        }
+
+        int opcionTipoLote = Integer.parseInt(entradaTipo.trim());
+        if (opcionTipoLote < 1 || opcionTipoLote > 3) {
+            mostrarMensaje("Opcion invalida. Debe digitar 1, 2 o 3.");
+            return;
+        }
+
+        String descripcionLote = JOptionPane.showInputDialog(null,
+                "Ingrese la descripcion del lote:");
+        if (descripcionLote == null || descripcionLote.trim().isEmpty()) {
+            mostrarMensaje("Operacion rechazada.\nDebe ingresar una descripcion valida.");
+            return;
+        }
+
+        String entradaPeso = JOptionPane.showInputDialog(null,
+                "Ingrese el peso en kilogramos (numero entero positivo):");
+        if (entradaPeso == null || !esNumeroEnteroNoNegativo(entradaPeso.trim())) {
+            mostrarMensaje("Operacion rechazada.\nEl peso debe ser un numero entero positivo.");
+            return;
+        }
+        int pesoKilogramos = Integer.parseInt(entradaPeso.trim());
+
+        Lote nuevoLote = null;
+
+        switch (opcionTipoLote) {
+            case 1:
+                String entradaClasificado = JOptionPane.showInputDialog(null,
+                        "El papel o carton fue clasificado antes de entregarse?\n\n" +
+                                "Digite el numero:\n" +
+                                "1. Si\n" +
+                                "2. No\n");
+                if (entradaClasificado == null || !esNumeroEnteroNoNegativo(entradaClasificado.trim())) {
+                    mostrarMensaje("Operacion rechazada. Debe digitar 1 o 2.");
+                    return;
+                }
+                int opcionClasificado = Integer.parseInt(entradaClasificado.trim());
+                if (opcionClasificado != 1 && opcionClasificado != 2) {
+                    mostrarMensaje("Operacion rechazada. Debe digitar 1 o 2.");
+                    return;
+                }
+                boolean estaClasificado = (opcionClasificado == 1);
+                nuevoLote = new PapelCarton(descripcionLote.trim(), pesoKilogramos, estaClasificado);
+                break;
+
+            case 2:
+                String entradaTipoMetal = JOptionPane.showInputDialog(null,
+                        "Seleccione el tipo de metal digitando su numero:\n\n" +
+                                "1. ALUMINIO\n" +
+                                "2. ACERO\n");
+                if (entradaTipoMetal == null || !esNumeroEnteroNoNegativo(entradaTipoMetal.trim())) {
+                    mostrarMensaje("Operacion rechazada. Debe digitar 1 o 2.");
+                    return;
+                }
+                int opcionMetal = Integer.parseInt(entradaTipoMetal.trim());
+                TipoMetal tipoMetalSeleccionado = null;
+                if (opcionMetal == 1) {
+                    tipoMetalSeleccionado = TipoMetal.ALUMINIO;
+                } else if (opcionMetal == 2) {
+                    tipoMetalSeleccionado = TipoMetal.ACERO;
+                } else {
+                    mostrarMensaje("Operacion rechazada. Debe digitar 1 o 2.");
+                    return;
+                }
+                nuevoLote = new Metal(descripcionLote.trim(), pesoKilogramos, tipoMetalSeleccionado);
+                break;
+
+            case 3:
+                String entradaEquipos = JOptionPane.showInputDialog(null,
+                        "Ingrese la cantidad de equipos completos (numero entero mayor o igual a 0):");
+                if (entradaEquipos == null || !esNumeroEnteroNoNegativo(entradaEquipos.trim())) {
+                    mostrarMensaje("Operacion rechazada. La cantidad de equipos debe ser un numero mayor o igual a 0.");
+                    return;
+                }
+                int cantidadEquipos = Integer.parseInt(entradaEquipos.trim());
+                nuevoLote = new ResiduoElectronico(descripcionLote.trim(), pesoKilogramos, cantidadEquipos);
+                break;
+
+            default:
+                break;
+        }
+
+        boolean loteAgregado = empresaEcoRuta.agregarLoteAEntrega(idEntrega, nuevoLote);
+        if (loteAgregado) {
+            mostrarMensaje("Lote agregado correctamente a la entrega " + entregaEncontrada.getIdEntrega() + ".\n\n" +
+                    nuevoLote.toString());
+        } else {
+            mostrarMensaje("Operacion rechazada.\n\n" +
+                    "Verifique que el peso sea mayor a 0 kg.");
+        }
+    }
+
+    private static void aceptarEntrega(Empresa empresaEcoRuta) {
+        String idEntrega = JOptionPane.showInputDialog(null,
+                "ACEPTAR ENTREGA\n\nIngrese el id de la entrega que desea aceptar:");
+        if (idEntrega == null) {
+            return;
+        }
+
+        boolean entregaAceptada = empresaEcoRuta.aceptarEntrega(idEntrega);
+        if (entregaAceptada) {
+            Comprobante comprobanteGenerado = empresaEcoRuta.consultarComprobantePorEntrega(idEntrega);
+            mostrarMensaje("Entrega aceptada exitosamente.\n\n" +
+                    "=== COMPROBANTE GENERADO ===\n" +
+                    "Id de entrega: " + comprobanteGenerado.idEntrega() + "\n" +
+                    "Id aportante: " + comprobanteGenerado.idAportante() + "\n" +
+                    "Peso total: " + comprobanteGenerado.pesoTotal() + " kg\n" +
+                    "Valor total reconocido: $" + comprobanteGenerado.valorTotalReconocido());
+        } else {
+            mostrarMensaje("Operacion rechazada.\n\n" +
+                    "No se pudo aceptar la entrega porque no existe, no tiene lotes registrados\n" +
+                    "o ya fue aceptada previamente.");
+        }
+    }
+
+    private static void verAportantesRegistrados(Empresa empresaEcoRuta) {
+        ArrayList<Aportante> listaAportantes = empresaEcoRuta.getListaAportantes();
+        String textoSalida = "=== APORTANTES REGISTRADOS ===\n\n";
+
+        if (listaAportantes.isEmpty()) {
+            textoSalida += "No hay aportantes registrados.";
+        } else {
+            for (int indice = 0; indice < listaAportantes.size(); indice++) {
+                Aportante aportanteActual = listaAportantes.get(indice);
+                textoSalida += (indice + 1) + ". Id: " + aportanteActual.idAportante() + "\n" +
+                        "   Nombre: " + aportanteActual.nombreAportante() + "\n" +
+                        "   Correo: " + aportanteActual.correoAportante() + "\n\n";
+            }
+        }
+        mostrarMensaje(textoSalida);
+    }
+
+    private static void consultarEtiquetas(Empresa empresaEcoRuta) {
+        String idEntrega = JOptionPane.showInputDialog(null,
+                "CONSULTAR ETIQUETA\n\nIngrese el id de la entrega:");
+        if (idEntrega == null) {
+            return;
+        }
+
+        Entrega entregaEncontrada = empresaEcoRuta.buscarEntregaPorId(idEntrega);
+        if (entregaEncontrada == null) {
+            mostrarMensaje("No existe ninguna entrega registrada con el id: " + idEntrega);
+            return;
+        }
+
+        ArrayList<String> etiquetas = empresaEcoRuta.consultarEtiquetasPorEntrega(idEntrega);
+        String textoEtiquetas = "=== ETIQUETAS DE CONTROL INTERNO ===\n" +
+                "Entrega: " + entregaEncontrada.getIdEntrega() + "\n\n";
+
+        if (etiquetas.isEmpty()) {
+            textoEtiquetas += "Esta entrega no contiene lotes que requieran etiqueta.";
+        } else {
+            for (int indice = 0; indice < etiquetas.size(); indice++) {
+                textoEtiquetas += (indice + 1) + ". " + etiquetas.get(indice) + "\n";
+            }
+        }
+        mostrarMensaje(textoEtiquetas);
+    }
+
+    private static void consultarValorAPagar(Empresa empresaEcoRuta) {
+        String idAportante = JOptionPane.showInputDialog(null,
+                "CONSULTAR VALOR A PAGAR\n\nIngrese el id del aportante (numero de documento):");
+        if (idAportante == null) {
+            return;
+        }
+
+        double valorAPagar = empresaEcoRuta.consultarValorAPagarPorAportante(idAportante);
+        Aportante aportanteEncontrado = empresaEcoRuta.buscarAportantePorId(idAportante);
+
+        String nombreMostrar = (aportanteEncontrado != null) ? aportanteEncontrado.nombreAportante() : "No registrado";
+
+        mostrarMensaje("=== CONSULTA DE VALOR A PAGAR ===\n\n" +
+                "Id Aportante: " + idAportante.trim() + "\n" +
+                "Aportante: " + nombreMostrar + "\n" +
+                "Total a pagar (entregas aceptadas): $" + valorAPagar);
+    }
+
+    private static void consultarEntrega(Empresa empresaEcoRuta) {
+        String idEntrega = JOptionPane.showInputDialog(null,
+                "CONSULTAR ENTREGA\n\nIngrese el id de la entrega:");
+        if (idEntrega == null) {
+            return;
+        }
+
+        Entrega entregaEncontrada = empresaEcoRuta.buscarEntregaPorId(idEntrega);
+        if (entregaEncontrada == null) {
+            mostrarMensaje("No existe ninguna entrega registrada con el id: " + idEntrega);
+            return;
+        }
+
+        String estadoTexto = "";
+        if (entregaEncontrada.getEstadoEntrega() == EstadoEntrega.ABIERTA) {
+            estadoTexto = "ABIERTA (En proceso de recepcion de lotes)";
+        } else {
+            estadoTexto = "ACEPTADA (Completada y cerrada)";
+        }
+
+        String detalleEntrega = "=== DETALLE DE LA ENTREGA ===\n\n" +
+                "Id Entrega: " + entregaEncontrada.getIdEntrega() + "\n" +
+                "Fecha: " + entregaEncontrada.getFechaEntrega() + "\n" +
+                "Aportante: " + entregaEncontrada.getAportante().nombreAportante() +
+                " (Id: " + entregaEncontrada.getAportante().idAportante() + ")\n" +
+                "Estado: " + estadoTexto + "\n" +
+                "Cantidad de lotes: " + entregaEncontrada.getListaLotes().size() + "\n\n";
+
+        ArrayList<Lote> listaLotes = entregaEncontrada.getListaLotes();
+        if (listaLotes.isEmpty()) {
+            detalleEntrega += "Esta entrega aun no tiene lotes registrados.";
+        } else {
+            detalleEntrega += "Lotes registrados en la entrega:\n";
+            for (int indice = 0; indice < listaLotes.size(); indice++) {
+                Lote loteActual = listaLotes.get(indice);
+                detalleEntrega += (indice + 1) + ". " + loteActual.toString() + "\n";
+            }
+        }
+
+        mostrarMensaje(detalleEntrega);
+    }
+
+    private static void consultarComprobante(Empresa empresaEcoRuta) {
+        String idEntrega = JOptionPane.showInputDialog(null,
+                "CONSULTAR COMPROBANTE\n\nIngrese el id de la entrega:");
+        if (idEntrega == null) {
+            return;
+        }
+
+        Entrega entregaEncontrada = empresaEcoRuta.buscarEntregaPorId(idEntrega);
+        if (entregaEncontrada == null) {
+            mostrarMensaje("No existe ninguna entrega registrada con el id: " + idEntrega);
+            return;
+        }
+
+        Comprobante comprobante = entregaEncontrada.getComprobante();
+        if (comprobante == null) {
+            mostrarMensaje("=== COMPROBANTE NO DISPONIBLE ===\n\n" +
+                    "La entrega " + entregaEncontrada.getIdEntrega() + " se encuentra en estado ABIERTA.\n" +
+                    "Debe aceptarla primero para generar su comprobante.");
+        } else {
+            mostrarMensaje("=== COMPROBANTE DE ENTREGA ===\n\n" +
+                    "Id Entrega: " + comprobante.idEntrega() + "\n" +
+                    "Id Aportante: " + comprobante.idAportante() + "\n" +
+                    "Peso total: " + comprobante.pesoTotal() + " kg\n" +
+                    "Valor total reconocido: $" + comprobante.valorTotalReconocido());
+        }
+    }
+
+    private static boolean esNumeroEnteroNoNegativo(String textoEvaluar) {
+        if (textoEvaluar == null || textoEvaluar.isEmpty() || textoEvaluar.length() > 9) {
+            return false;
+        }
+        String digitosValidos = "0123456789";
+        for (int indice = 0; indice < textoEvaluar.length(); indice++) {
+            String digitoActual = textoEvaluar.substring(indice, indice + 1);
+            if (!digitosValidos.contains(digitoActual)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static void mostrarMensaje(String mensajeMostrar) {
+        JOptionPane.showMessageDialog(null, mensajeMostrar, "EcoRuta", JOptionPane.INFORMATION_MESSAGE);
     }
 }
